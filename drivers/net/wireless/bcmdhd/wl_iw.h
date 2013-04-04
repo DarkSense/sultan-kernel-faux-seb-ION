@@ -71,14 +71,14 @@ struct cntry_locales_custom {
 
 
 #define	WL_IW_RSSI_MINVAL		-200	
-#define	WL_IW_RSSI_NO_SIGNAL	-98	
-#define	WL_IW_RSSI_VERY_LOW	-87	
-#define	WL_IW_RSSI_LOW		-77	
-#define	WL_IW_RSSI_GOOD		-75	
-#define	WL_IW_RSSI_VERY_GOOD	-72	
-#define	WL_IW_RSSI_EXCELLENT	-64	
+#define	WL_IW_RSSI_NO_SIGNAL	-91	
+#define	WL_IW_RSSI_VERY_LOW	-80	
+#define	WL_IW_RSSI_LOW		-70	
+#define	WL_IW_RSSI_GOOD		-68	
+#define	WL_IW_RSSI_VERY_GOOD	-58	
+#define	WL_IW_RSSI_EXCELLENT	-57	
 #define	WL_IW_RSSI_INVALID	 0	
-#define MAX_WX_STRING 87
+#define MAX_WX_STRING 80
 #define isprint(c) bcm_isprint(c)
 #define WL_IW_SET_ACTIVE_SCAN	(SIOCIWFIRSTPRIV+1)
 #define WL_IW_GET_RSSI			(SIOCIWFIRSTPRIV+3)
@@ -101,7 +101,11 @@ struct cntry_locales_custom {
 /* HTC_CSP_END */
 #define WL_AP_STA_DISASSOC		(SIOCIWFIRSTPRIV+31)
 #define WL_COMBO_SCAN           (SIOCIWFIRSTPRIV+33)
-
+//BRCM WPSAP START
+#ifdef BRCM_WPSAP
+#define WL_REGISTRAR_WSEC       (SIOCIWFIRSTPRIV+35)
+#endif /* BRCM_WPSAP */
+//BRCM WPSAP END
 
 #define			G_SCAN_RESULTS 8*1024
 #define 		WE_ADD_EVENT_FIX	0x80

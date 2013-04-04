@@ -1554,7 +1554,6 @@ intel_dp_link_down(struct intel_dp *intel_dp)
 			intel_wait_for_vblank(dev, to_intel_crtc(crtc)->pipe);
 	}
 
-	DP &= ~DP_AUDIO_OUTPUT_ENABLE;
 	I915_WRITE(intel_dp->output_reg, DP & ~DP_PORT_EN);
 	POSTING_READ(intel_dp->output_reg);
 }
@@ -1658,31 +1657,6 @@ g4x_dp_detect(struct intel_dp *intel_dp)
 
 	return status;
 }
-
-static struct edid *
-intel_dp_get_edid(struct drm_connector *connector, struct i2c_adapter *adapter)
-{
-	struct intel_dp *intel_dp = intel_attached_dp(connector);
-	struct edid	*edid;
-
-	ironlake_edp_panel_vdd_on(intel_dp);
-	edid = drm_get_edid(connector, adapter);
-	ironlake_edp_panel_vdd_off(intel_dp);
-	return edid;
-}
-
-static int
-intel_dp_get_edid_modes(struct drm_connector *connector, struct i2c_adapter *adapter)
-{
-	struct intel_dp *intel_dp = intel_attached_dp(connector);
-	int	ret;
-
-	ironlake_edp_panel_vdd_on(intel_dp);
-	ret = intel_ddc_get_modes(connector, adapter);
-	ironlake_edp_panel_vdd_off(intel_dp);
-	return ret;
-}
-
 
 static struct edid *
 intel_dp_get_edid(struct drm_connector *connector, struct i2c_adapter *adapter)

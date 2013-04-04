@@ -481,55 +481,6 @@ static bool radeon_connector_needs_extended_probe(struct radeon_device *dev,
 	return false;
 }
 
-/*
- * Some integrated ATI Radeon chipset implementations (e. g.
- * Asus M2A-VM HDMI) may indicate the availability of a DDC,
- * even when there's no monitor connected. For these connectors
- * following DDC probe extension will be applied: check also for the
- * availability of EDID with at least a correct EDID header. Only then,
- * DDC is assumed to be available. This prevents drm_get_edid() and
- * drm_edid_block_valid() from periodically dumping data and kernel
- * errors into the logs and onto the terminal.
- */
-static bool radeon_connector_needs_extended_probe(struct radeon_device *dev,
-				     uint32_t supported_device,
-				     int connector_type)
-{
-	/* Asus M2A-VM HDMI board sends data to i2c bus even,
-	 * if HDMI add-on card is not plugged in or HDMI is disabled in
-	 * BIOS. Valid DDC can only be assumed, if also a valid EDID header
-	 * can be retrieved via i2c bus during DDC probe */
-	if ((dev->pdev->device == 0x791e) &&
-	    (dev->pdev->subsystem_vendor == 0x1043) &&
-	    (dev->pdev->subsystem_device == 0x826d)) {
-		if ((connector_type == DRM_MODE_CONNECTOR_HDMIA) &&
-		    (supported_device == ATOM_DEVICE_DFP2_SUPPORT))
-			return true;
-	}
-	/* ECS A740GM-M with ATI RADEON 2100 sends data to i2c bus
-	 * for a DVI connector that is not implemented */
-	if ((dev->pdev->device == 0x796e) &&
-	    (dev->pdev->subsystem_vendor == 0x1019) &&
-	    (dev->pdev->subsystem_device == 0x2615)) {
-		if ((connector_type == DRM_MODE_CONNECTOR_DVID) &&
-		    (supported_device == ATOM_DEVICE_DFP2_SUPPORT))
-			return true;
-	}
-	/* TOSHIBA Satellite L300D with ATI Mobility Radeon x1100
-	 * (RS690M) sends data to i2c bus for a HDMI connector that
-	 * is not implemented */
-	if ((dev->pdev->device == 0x791f) &&
-	    (dev->pdev->subsystem_vendor == 0x1179) &&
-	    (dev->pdev->subsystem_device == 0xff68)) {
-		if ((connector_type == DRM_MODE_CONNECTOR_HDMIA) &&
-		    (supported_device == ATOM_DEVICE_DFP2_SUPPORT))
-			return true;
-	}
-
-	/* Default: no EDID header probe required for DDC probing */
-	return false;
-}
-
 static void radeon_fixup_lvds_native_mode(struct drm_encoder *encoder,
 					  struct drm_connector *connector)
 {
@@ -1039,10 +990,6 @@ radeon_dvi_detect(struct drm_connector *connector, bool force)
 
 			encoder = obj_to_encoder(obj);
 
-			if (encoder->encoder_type != DRM_MODE_ENCODER_DAC &&
-			    encoder->encoder_type != DRM_MODE_ENCODER_TVDAC)
-				continue;
-
 			encoder_funcs = encoder->helper_private;
 			if (encoder_funcs->detect) {
 				if (ret != connector_status_connected) {
@@ -1069,7 +1016,6 @@ radeon_dvi_detect(struct drm_connector *connector, bool force)
 	 * cases the DVI port is actually a virtual KVM port connected to the service
 	 * processor.
 	 */
-out:
 	if ((!rdev->is_atom_bios) &&
 	    (ret == connector_status_disconnected) &&
 	    rdev->mode_info.bios_hardcoded_edid_size) {
@@ -1077,6 +1023,7 @@ out:
 		ret = connector_status_connected;
 	}
 
+out:
 	/* updated in get modes as well since we need to know if it's analog or digital */
 	radeon_connector_update_scratch_regs(connector, ret);
 	return ret;
